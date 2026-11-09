@@ -2,6 +2,8 @@
 
 ### Local LLM-Powered Application Security Code Analyzer
 
+### Note: This project is just started, this is not the final version. You can call this " mini-MVP 😁".
+
 VulnAgent is an AI-assisted source code security analysis tool powered by **Ollama** and **Qwen3 8B**.
 
 <img width="1512" height="947" alt="Screenshot 2026-11-09 at 11 15 19 PM" src="https://github.com/user-attachments/assets/763f64d8-a4ed-49bb-80e4-eff11c4068bb" />
