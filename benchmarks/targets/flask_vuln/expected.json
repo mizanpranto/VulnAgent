@@ -1,0 +1,41 @@
+{
+  "name": "flask_vuln",
+  "description": "Deliberately vulnerable Flask app. Comments that named each bug were removed (blanked, so line numbers are unchanged) so a model cannot read the answers. Ground truth was written by hand from the original, annotated file.",
+  "file": "app.py",
+  "match_rule": "A finding matches an item when its line is inside [start, end] and its CWE is in the item's cwes list.",
+  "items": [
+    {"id": "V01", "title": "Hard-coded Flask secret_key", "cwes": [798], "start": 15, "end": 15},
+    {"id": "V02", "title": "Hard-coded database password", "cwes": [798], "start": 16, "end": 16},
+    {"id": "V03", "title": "Hard-coded API key", "cwes": [798], "start": 17, "end": 17},
+    {"id": "V04", "title": "SQL injection in /register", "cwes": [89], "start": 48, "end": 49},
+    {"id": "V05", "title": "SQL injection in /login", "cwes": [89], "start": 66, "end": 67},
+    {"id": "V06", "title": "Unsalted fast password hash", "cwes": [916, 327], "start": 78, "end": 80},
+    {"id": "V07", "title": "SQL injection in /reset-password", "cwes": [89], "start": 92, "end": 94},
+    {"id": "V08", "title": "/reset-password lacks identity verification", "cwes": [862, 306, 285], "start": 83, "end": 99},
+    {"id": "V09", "title": "Command injection in /ping", "cwes": [78], "start": 107, "end": 108},
+    {"id": "V10", "title": "Path traversal in /read", "cwes": [22], "start": 118, "end": 120},
+    {"id": "V11", "title": "Unrestricted upload / unsanitised filename", "cwes": [434, 22], "start": 129, "end": 133},
+    {"id": "V12", "title": "SSRF in /fetch", "cwes": [918], "start": 143, "end": 143},
+    {"id": "V13", "title": "Insecure deserialization (pickle)", "cwes": [502], "start": 153, "end": 153},
+    {"id": "V14", "title": "Template injection / reflected XSS in /search", "cwes": [79, 1336, 94], "start": 163, "end": 165},
+    {"id": "V15", "title": "Secrets and environment exposed by /debug", "cwes": [200], "start": 168, "end": 175},
+    {"id": "V16", "title": "Predictable token generation", "cwes": [338, 330], "start": 178, "end": 179},
+    {"id": "V17", "title": "Client-controlled authorization in /admin", "cwes": [285, 862], "start": 184, "end": 188},
+    {"id": "V18", "title": "IDOR in /profile", "cwes": [639, 862, 285], "start": 193, "end": 207},
+    {"id": "V19", "title": "Open redirect", "cwes": [601], "start": 214, "end": 217},
+    {"id": "V20", "title": "Weak password policy", "cwes": [521], "start": 220, "end": 221},
+    {"id": "V21", "title": "Password written to log", "cwes": [532], "start": 226, "end": 227},
+    {"id": "V22", "title": "TLS verification disabled", "cwes": [295], "start": 234, "end": 234},
+    {"id": "V23", "title": "ReDoS pattern", "cwes": [1333], "start": 253, "end": 254},
+    {"id": "V24", "title": "Missing authorization on /delete-user", "cwes": [862, 639, 285, 306], "start": 257, "end": 271},
+    {"id": "V25", "title": "Credentials exposed by /config", "cwes": [200, 798], "start": 276, "end": 282},
+    {"id": "V26", "title": "Predictable temporary file", "cwes": [377], "start": 286, "end": 289},
+    {"id": "V27", "title": "World-writable secrets file", "cwes": [732], "start": 300, "end": 300},
+    {"id": "V28", "title": "Unbounded resource consumption in /generate", "cwes": [400], "start": 305, "end": 311},
+    {"id": "V29", "title": "Exception details returned to client", "cwes": [209], "start": 321, "end": 324},
+    {"id": "V30", "title": "Debug server bound to all interfaces", "cwes": [489, 668], "start": 331, "end": 335}
+  ],
+  "excluded": [
+    {"lines": "242-249", "reason": "/process echoes a JSON field and is not exploitable as written; the original author listed it but it is not a vulnerability."}
+  ]
+}
