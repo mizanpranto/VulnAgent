@@ -1,0 +1,25 @@
+{
+  "name": "we45/Vulnerable-Flask-App (third-party)",
+  "source": {"repo": "https://github.com/we45/Vulnerable-Flask-App", "commit": "b6a4f97afd466e83e1f60781494252dec1c37039",
+             "scan_dir": "app"},
+  "description": "Third-party code that VulnAgent's detector was NOT written against. Labels below were written by reading app/app.py; they are one person's judgement, not the project's official list. The first measurement on this app (before fixes) is the honest held-out number; after the detector was fixed for the gaps it exposed, the app is no longer held-out.",
+  "file": "app.py",
+  "reproduce": "git clone https://github.com/we45/Vulnerable-Flask-App && git -C Vulnerable-Flask-App checkout b6a4f97 && python -m vulnagent.bench --external Vulnerable-Flask-App/app --truth benchmarks/external/vulnerable-flask-app.expected.json",
+  "items": [
+    {"id": "E01", "title": "Hard-coded HMAC secret", "cwes": [798], "start": 26, "end": 26},
+    {"id": "E02", "title": "Hard-coded second HMAC secret", "cwes": [798], "start": 27, "end": 27},
+    {"id": "E03", "title": "Hard-coded Flask secret_key", "cwes": [798], "start": 28, "end": 28},
+    {"id": "E04", "title": "Hard-coded admin password", "cwes": [798], "start": 63, "end": 63},
+    {"id": "E05", "title": "JWT decoded without verifying signature", "cwes": [347], "start": 96, "end": 99},
+    {"id": "E06", "title": "Template injection in 404 handler (request.url)", "cwes": [1336, 79], "start": 101, "end": 114},
+    {"id": "E07", "title": "Passwords hashed with MD5", "cwes": [327, 916], "start": 141, "end": 141},
+    {"id": "E08", "title": "Exception text returned to client", "cwes": [209], "start": 148, "end": 148},
+    {"id": "E09", "title": "Exception text returned to client", "cwes": [209], "start": 167, "end": 167},
+    {"id": "E10", "title": "SQL injection in /search", "cwes": [89], "start": 261, "end": 265},
+    {"id": "E11", "title": "Template injection via exception text in /search", "cwes": [1336, 79], "start": 270, "end": 281},
+    {"id": "E12", "title": "yaml.load on uploaded file", "cwes": [502], "start": 329, "end": 329},
+    {"id": "E13", "title": "IDOR in /fetch/customer (no ownership check)", "cwes": [639, 862, 285], "start": 205, "end": 208},
+    {"id": "E14", "title": "IDOR in /get/<cust_id> with unverified JWT", "cwes": [639, 862, 285, 347], "start": 229, "end": 231},
+    {"id": "E15", "title": "XXE when parsing uploaded .docx", "cwes": [611], "start": 303, "end": 303}
+  ]
+}
