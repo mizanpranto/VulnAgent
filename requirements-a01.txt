@@ -1,0 +1,7 @@
+# Optional: real parsers for the OWASP A01 access-control layer (JavaScript/TypeScript, Java, C#).
+# Without them, JS/TS/Java/C# are listed as 'not analysed' in the report instead of silently producing no findings.
+tree-sitter>=0.22
+tree-sitter-javascript>=0.23
+tree-sitter-typescript>=0.23
+tree-sitter-java>=0.23
+tree-sitter-c-sharp>=0.23
