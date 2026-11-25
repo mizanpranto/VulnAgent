@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="VulnAgent logo">
+  <path d="M60 8 104 24v32c0 28-18 48-44 56C34 104 16 84 16 56V24z" fill="#0f4c5c"/>
+  <path d="M38 46 60 82 82 46" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="60" cy="38" r="6" fill="#f4a261"/>
+</svg>
