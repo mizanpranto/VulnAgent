@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Scan failed' if job.status == 'error' else 'Scanning…' }} | VulnAgent{% endblock %}
+{% block content %}
+{% if job.status == 'error' %}
+  <h1>This archive could not be scanned</h1>
+  <p class="lead">{{ job.error }}</p>
+  <p><a class="btn" href="{{ url_for('index') }}">Try another archive</a></p>
+{% else %}
+  <h1>Scanning your archive</h1>
+  <p class="lead">Keep this page open. It updates by itself and shows the report when the scan finishes.</p>
+  <div id="progress" data-id="{{ job.id }}">
+    <progress id="bar" max="100" value="3" aria-label="Scan progress"></progress>
+    <p id="stage" role="status" aria-live="polite"><strong>{{ job.stage_label }}</strong></p>
+    <p class="muted small" id="detail">{{ job.message }}</p>
+  </div>
+  <ol class="stages" aria-label="Scan stages">
+    <li data-stage="extract">Unpack the archive</li>
+    <li data-stage="scan">Read source files and run static analysis</li>
+    <li data-stage="triage">AI checks each finding (if enabled)</li>
+    <li data-stage="discovery">AI looks for extra issues (if enabled)</li>
+    <li data-stage="done">Build the report</li>
+  </ol>
+  <p class="err" id="error" role="alert"></p>
+{% endif %}
+{% endblock %}
+{% block scripts %}{% if job.status != 'error' %}<script src="{{ url_for('static', filename='progress.js') }}"></script>{% endif %}{% endblock %}

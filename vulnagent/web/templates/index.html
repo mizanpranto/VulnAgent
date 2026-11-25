@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Scan a code archive | VulnAgent{% endblock %}
+{% block content %}
+<div class="upload-grid">
+  <section>
+    <h1>Scan a code archive for security flaws</h1>
+    <p class="lead">Upload a .zip of a Python, JavaScript or TypeScript project. VulnAgent analyzes it on this computer and shows you charts, data-flow diagrams and a professional PDF or Word report you can download.</p>
+
+    <form id="scan-form" novalidate>
+      <label class="drop" id="drop">
+        <input type="file" id="archive" name="archive" accept=".zip,application/zip" required aria-describedby="drop-hint">
+        <strong>Drop a .zip here, or click to choose one</strong>
+        <span class="muted" id="drop-hint">Up to {{ max_mb }} MB. Only source files are read.</span>
+        <span class="picked" id="picked"></span>
+      </label>
+
+      <fieldset>
+        <legend>AI review</legend>
+        <p class="hint" id="ai-status"><span class="pill-status">Checking for Ollama…</span></p>
+        <label class="opt"><input type="checkbox" name="ai" id="ai" checked>
+          <span>Have {{ model }} check each finding<small>Removes obvious false positives. Needs Ollama running on this computer.</small></span></label>
+        <label class="opt"><input type="checkbox" name="discover" id="discover">
+          <span>Also let the AI look for extra issues<small>Slower. Every AI claim is checked against your code before it is shown.</small></span></label>
+      </fieldset>
+      <fieldset>
+        <legend>Dependencies</legend>
+        <label class="opt"><input type="checkbox" name="deps" id="deps">
+          <span>Check package versions for known vulnerabilities<small>Sends only package names and versions to api.osv.dev. Your code is never uploaded. Off by default.</small></span></label>
+      </fieldset>
+
+      <fieldset class="report-details">
+        <legend>Report details</legend>
+        <p class="hint">Printed on the cover page of the PDF and Word reports. Every field is optional.</p>
+        <div class="fields">
+          <label>Assessed by<input type="text" name="report_assessor" maxlength="120" autocomplete="name" placeholder="Your name"></label>
+          <label>Company<input type="text" name="report_company" maxlength="120" autocomplete="organization" placeholder="Your company"></label>
+          <label>Prepared for (client)<input type="text" name="report_client" maxlength="120" placeholder="Client or team name"></label>
+          <label>Application name<input type="text" name="report_application" maxlength="120" placeholder="Defaults to the zip file name"></label>
+          <label>Report title<input type="text" name="report_title" maxlength="120" placeholder="Source Code Security Assessment"></label>
+          <label>Contact (email or phone)<input type="text" name="report_contact" maxlength="120" autocomplete="email"></label>
+          <label>Reviewed by<input type="text" name="report_reviewer" maxlength="120"></label>
+          <label>Agent developed by<input type="text" name="report_agent_author" maxlength="120" value="{{ default_author }}" placeholder="Credit line for VulnAgent"></label>
+          <label>Classification
+            <select name="report_classification">{% for c in classifications %}<option>{{ c }}</option>{% endfor %}</select></label>
+          <label>Report date<input type="date" name="report_date" value="{{ today }}"></label>
+          <label>Version<input type="text" name="report_version" maxlength="20" value="1.0"></label>
+          <label>Company logo (PNG or JPEG, up to 1 MB)<input type="file" name="logo" id="logo" accept="image/png,image/jpeg"></label>
+        </div>
+        <label class="opt"><input type="checkbox" id="remember" checked>
+          <span>Remember these details in this browser<small>Saved only on this computer, never sent anywhere else. The logo is not saved.</small></span></label>
+      </fieldset>
+
+      <p class="err" id="error" role="alert"></p>
+      <p class="submit-row"><button class="btn" id="submit" type="submit" disabled>Scan archive</button></p>
+    </form>
+  </section>
+
+  <aside class="assure">
+    <h2>What happens to your upload</h2>
+    <ul>
+      <li>It stays on this computer. Nothing is sent to an online service, and the page loads no outside scripts or fonts.</li>
+      <li>Your code is read, never run. Archives that try to write outside their folder, contain links, or expand to a huge size are refused.</li>
+      <li>The unpacked source is deleted as soon as the scan ends. The report is removed after one hour.</li>
+      <li>Python gets data-flow analysis. JavaScript and TypeScript get pattern checks only.</li>
+    </ul>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='index.js') }}"></script>{% endblock %}

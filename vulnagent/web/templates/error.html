@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Not available | VulnAgent{% endblock %}
+{% block content %}
+<h1>{{ 'Page not found' if code == 404 else 'Request refused' }}</h1>
+<p class="lead">{{ message or 'Nothing is available at this address.' }}</p>
+<p><a class="btn" href="{{ url_for('index') }}">Scan an archive</a></p>
+{% endblock %}

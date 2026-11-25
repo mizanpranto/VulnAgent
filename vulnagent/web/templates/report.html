@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% set s = report.stats.severity %}
+{% macro finding_row(f, flow, dismissed=False) %}
+<details class="finding" data-sev="{{ f.severity }}" data-text="{{ (f.title ~ ' ' ~ f.file ~ ' ' ~ ('CWE-' ~ f.cwe if f.cwe else ''))|lower }}">
+  <summary>
+    <span class="sev"><span class="swatch sev-{{ f.severity }}"></span>{{ sev_label[f.severity] }}</span>
+    <span class="ftitle">{{ f.title }}</span>
+    <span class="loc">{{ f.file }}:{{ f.line }}</span>
+  </summary>
+  <div class="fbody">
+    <div>
+      <dl class="kv">
+        <dt>Weakness</dt><dd>{{ cwe_label(f.cwe) }}</dd>
+        {% if standards_label(f.cwe) %}<dt>Standards</dt><dd>{{ standards_label(f.cwe) }}</dd>{% endif %}
+        <dt>Confidence</dt><dd>{{ f.confidence }}</dd>
+        <dt>Found by</dt><dd>{% for o in f.origins %}{{ origin_label.get(o, o) }}{{ ', ' if not loop.last }}{% endfor %}</dd>
+      </dl>
+      {% if f.evidence %}<p class="small muted sublabel">Code</p><pre>{{ f.evidence }}</pre>{% endif %}
+    </div>
+    <div>
+      <p class="small muted sublabel flush">How the data reaches the risky call</p>
+      {{ flow|safe }}
+    </div>
+    <div class="full">
+      {% if f.explanation %}<p><strong>Why it matters.</strong> {{ f.explanation }}</p>{% endif %}
+      {% if f.fix %}<p><strong>How to fix it.</strong> {{ f.fix }}</p>{% endif %}
+      {% if f.safe_example %}<pre>{{ f.safe_example }}</pre>{% endif %}
+      {% if f.triage %}
+      <div class="verdict">
+        <p><strong>AI check:</strong> {{ f.triage.verdict|replace('_', ' ') }}{% if f.triage.reason %}. {{ f.triage.reason }}{% endif %}</p>
+        {% if f.triage.note %}<p class="small muted">{{ f.triage.note }}</p>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</details>
+{% endmacro %}
+
+{% block title %}{{ report.project }} report | VulnAgent{% endblock %}
+{% block content %}
+<h1>{{ report.project }}</h1>
+<div class="meta">
+  <span>{{ report.stats.files }} files</span>
+  <span>{{ report.stats.lines }} lines</span>
+  <span>{% for lang, n in report.stats.languages.items() %}{{ lang }} ({{ n }}){{ ', ' if not loop.last }}{% endfor %}</span>
+  <span>Scanned in {{ report.meta.duration_seconds }} s</span>
+</div>
+<div class="actions">
+  <a class="btn" href="{{ url_for('download_pdf', job_id=job_id) }}">Download PDF report</a>
+  <a class="btn secondary" href="{{ url_for('download_docx', job_id=job_id) }}">Download Word report</a>
+  <a class="btn secondary" href="{{ url_for('index') }}">Scan another archive</a>
+  <span class="links small">
+    <a href="{{ url_for('download_json', job_id=job_id) }}">JSON</a>
+    <a href="{{ url_for('download_sarif', job_id=job_id) }}">SARIF</a>
+    <a href="{{ url_for('download_md', job_id=job_id) }}">Markdown</a>
+  </span>
+</div>
+<p class="small muted">Your uploaded source has already been deleted. This report is kept for {{ expires_minutes }} minutes, so download what you need.</p>
+{% for note in report.notes %}<p class="note">{{ note }}</p>{% endfor %}
+
+<h2>Risk at a glance</h2>
+<p class="lead">
+  {% if report.stats.total == 0 %}No findings were reported. That does not prove the code is safe; see the limits below.
+  {% elif s.critical or s.high %}{{ report.stats.total }} findings. Start with the {{ s.critical }} critical and {{ s.high }} high ones.
+  {% else %}{{ report.stats.total }} findings, none critical or high.{% endif %}
+</p>
+<div class="pair">
+  <div class="panel">
+    <h3>Findings by severity</h3>
+    {{ sev_chart|safe }}
+    <details class="table-view"><summary>Show as table</summary>
+      <table><tr><th>Severity</th><th>Findings</th></tr>
+      {% for key in ['critical','high','medium','low','info'] %}<tr><td>{{ sev_label[key] }}</td><td>{{ s[key] }}</td></tr>{% endfor %}</table>
+    </details>
+  </div>
+  <div class="panel">
+    <h3>Most common weakness types</h3>
+    {{ cwe_chart|safe }}
+    {% if report.stats.by_cwe %}<details class="table-view"><summary>Show as table</summary>
+      <table><tr><th>CWE</th><th>Name</th><th>Findings</th></tr>
+      {% for row in report.stats.by_cwe %}<tr><td>CWE-{{ row.cwe }}</td><td>{{ row.name }}</td><td>{{ row.count }}</td></tr>{% endfor %}</table>
+    </details>{% endif %}
+  </div>
+  <div class="panel">
+    <h3>OWASP Top 10:2025 categories</h3>
+    {% if report.stats.owasp %}
+      <table><tr><th>Category</th><th>Findings</th></tr>
+      {% for row in report.stats.owasp %}<tr><td>{{ row.id }} {{ row.name }}</td><td>{{ row.count }}</td></tr>{% endfor %}</table>
+      <p class="small muted">{{ report.stats.top25 }} finding(s) are in the CWE Top 25 (2025).</p>
+    {% else %}<p class="small muted">No findings map to an OWASP Top 10 category.</p>{% endif %}
+  </div>
+</div>
+
+<h2>How this scan ran</h2>
+<p class="muted">Each stage and what it produced. AI results are checked against your code before they appear.</p>
+<div class="narrow">{{ pipeline|safe }}</div>
+
+<h2>Where the risk is</h2>
+<p class="muted">Files with the most serious findings, split by severity.</p>
+<div class="narrow">{{ file_chart|safe }}
+{{ legend|safe }}</div>
+
+<h2>Findings</h2>
+<div class="toolbar" id="toolbar">
+  {% for key in ['critical','high','medium','low','info'] if s[key] %}
+  <button class="chip" type="button" data-sev="{{ key }}" aria-pressed="true"><span class="swatch sev-{{ key }}"></span>{{ sev_label[key] }} {{ s[key] }}</button>
+  {% endfor %}
+  <input type="search" id="q" placeholder="Filter by title, file or CWE" aria-label="Filter findings">
+  <span class="count" id="count" aria-live="polite"></span>
+</div>
+<div id="findings">
+  {% for f, flow in active_rows %}{{ finding_row(f, flow) }}{% else %}<p class="empty">No findings to show.</p>{% endfor %}
+</div>
+
+{% if dismissed_rows %}
+<h2>Dismissed by the AI check</h2>
+<p class="muted">The static analysis flagged these, but the model judged them false positives. They stay visible so you can overrule it.</p>
+<div>{% for f, flow in dismissed_rows %}{{ finding_row(f, flow, True) }}{% endfor %}</div>
+{% endif %}
+
+<h2>Limits of this scan</h2>
+<div class="limits"><ul>
+  <li>Python files get data-flow analysis inside one function. JavaScript and TypeScript get pattern checks only.</li>
+  <li>There is no cross-file data flow and no dependency scanning. Allowlist checks and similar guards are invisible to the static stage; the AI check exists for those cases.</li>
+  <li>AI output is treated as a claim. Its quoted code must exist in the file, line numbers are recomputed, and critical findings are never dismissed automatically.</li>
+</ul></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='report.js') }}"></script>{% endblock %}
